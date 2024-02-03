@@ -92,16 +92,26 @@ export const updateUser = async (req, res, next) => {
           username: req.body.username,
           email: req.body.email,
           password: req.body.password,
-          avatar:req.body.avatar
-        }
+          avatar: req.body.avatar,
+        },
       },
       { new: true }
     )
-    const { password, ...rest } = updatedUser._doc;
+    const { password, ...rest } = updatedUser._doc
 
+    res.status(200).json(rest)
+  } catch (error) {
+    next(error)
+  }
+}
 
-
-    res.status(200).json(rest);
+export const deleteUser = async (req, res, next) => {
+  if (req.user.id !== req.params.id)
+    return next(errorHandler(401, 'you are not authorised'))
+  try {
+    await User.findByIdAndDelete(req.params.id)
+    res.clearCookie('access_token')
+    res.status(200).json({ message: 'user has been successfully deleted' })
   } catch (error) {
     next(error)
   }

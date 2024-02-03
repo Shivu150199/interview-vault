@@ -7,46 +7,52 @@ import {
   uploadBytesResumable,
 } from 'firebase/storage'
 import { app } from '../firebase'
-import { updateFailure, updateStart, updateSuccess } from '../redux/user/userSlice'
-import {  useNavigate } from 'react-router-dom'
+import {
+  deleteFailure,
+  deleteStart,
+  deleteSuccess,
+  updateFailure,
+  updateStart,
+  updateSuccess,
+} from '../redux/user/userSlice'
+import { useNavigate } from 'react-router-dom'
 const Profile = () => {
-  const { currentUser,loading,error } = useSelector((state) => state.user)
+  const { currentUser, loading, error } = useSelector((state) => state.user)
   const fileRef = useRef(null)
   const [file, setFile] = useState(undefined)
   const [filePerc, setFilePerc] = useState(0)
   const [fileUploadError, setFileUploadError] = useState(false)
   const [formData, setFormData] = useState({})
-  const dispatch=useDispatch()
-const navigate=useNavigate()
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
   // console.log(file)
   // console.log(filePerc)
   // console.log(formData)
   const handleChange = (e) => {
     // console.log('hello')
-    setFormData({...formData,[e.target.id]:e.target.value})
+    setFormData({ ...formData, [e.target.id]: e.target.value })
   }
-  const handleSubmit = async(e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-try{
-dispatch(updateStart());
-const res=await fetch(`/api/auth/update/${currentUser._id}`,{
-  method:'POST',
-  headers:{
-    'Content-Type':'application/json'
-  },
-  body:JSON.stringify(formData)
-})
-const data=await res.json();
-if(data.success==false){
-  dispatch(updateFailure(data.message))
-  return
-}
-dispatch(updateSuccess(data))
-navigate('/home')
-   
-}catch(error){
- dispatch(updateFailure(error.message));
-}
+    try {
+      dispatch(updateStart())
+      const res = await fetch(`/api/auth/update/${currentUser._id}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      })
+      const data = await res.json()
+      if (data.success == false) {
+        dispatch(updateFailure(data.message))
+        return
+      }
+      dispatch(updateSuccess(data))
+      navigate('/home')
+    } catch (error) {
+      dispatch(updateFailure(error.message))
+    }
 
     // console.log('submitted')
   }
@@ -78,6 +84,26 @@ navigate('/home')
       }
     )
   }
+
+  const handleDelete = async () => {
+    try {
+      dispatch(deleteStart())
+      const res = await fetch(`/api/auth/delete/${currentUser._id}`, {
+        method: 'DELETE',
+      })
+      const data=await res.json();
+      if(data.success==false){
+      dispatch(deleteFailure(data.message))
+      return;
+      }
+
+      dispatch(deleteSuccess(data))
+      navigate("/login")
+    } catch (error) {
+    dispatch(deleteFailure(error))
+    }
+  }
+
   return (
     <section className="p-4 w-screen h-screen bg-zinc-800 flex flex-col justify-center items-center">
       <h1 className="text-4xl font-bold text-center my-6 text-white ">
@@ -138,13 +164,14 @@ navigate('/home')
         <button
           //   disabled={loading}
           className="bg-indigo-700 text-white p-2 rounded-lg uppercase hover:opacity-95 disabled:opacity-80"
-          
         >
           {/* Updated */}
           {loading ? 'loading....' : 'Update'}
         </button>
         <div className="mt-2 flex items-center justify-between">
-          <button className="text-red-400 capitalize">delete Account</button>
+          <button onClick={handleDelete} className="text-red-400 capitalize">
+            delete Account
+          </button>
           <button className="text-red-400 capitalize">Sign out</button>
         </div>
       </form>

@@ -1,5 +1,5 @@
 import express from 'express'
-import { login, signup,google, updateUser } from '../controller/auth.controller.js'
+import { login, signup,google, updateUser, deleteUser } from '../controller/auth.controller.js'
 import { verifyToken } from '../utils/verifyToken.js'
 
 
@@ -9,5 +9,6 @@ router.post('/signup',signup)
 router.post('/login',login)
 router.post('/google',google)
 router.post('/update/:id',verifyToken, updateUser)
+router.delete('/delete/:id',verifyToken, deleteUser)
 
 export default router
