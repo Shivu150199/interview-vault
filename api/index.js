@@ -4,6 +4,7 @@ import connection from './config/db.js'
 // import loginRouter from './routes/auth.route.js'
 import authRouter from './routes/auth.route.js'
 import userRouter from './routes/user.route.js'
+import listingRouter from './routes/listing.route.js'
 import cookieParser from 'cookie-parser'
 import cors from "cors"
 const app = express()
@@ -16,6 +17,7 @@ app.use(cors())
 // app.use(cookieParser())
 app.use('/api/auth',authRouter)
 app.use('/api/app',userRouter)
+app.use('/api/listing',listingRouter)
 
 
 app.use((err,req,res,next)=>{

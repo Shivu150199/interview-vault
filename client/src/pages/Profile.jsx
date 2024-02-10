@@ -11,13 +11,18 @@ import {
   deleteFailure,
   deleteStart,
   deleteSuccess,
+  signoutStart,
+  signoutFailure,
+  signoutSuccess,
   updateFailure,
   updateStart,
   updateSuccess,
 } from '../redux/user/userSlice'
 import { useNavigate } from 'react-router-dom'
 const Profile = () => {
-  const { currentUser, loading, error } = useSelector((state) => state.user)
+  const { currentUser, loading, error, handleSignOut } = useSelector(
+    (state) => state.user
+  )
   const fileRef = useRef(null)
   const [file, setFile] = useState(undefined)
   const [filePerc, setFilePerc] = useState(0)
@@ -91,19 +96,34 @@ const Profile = () => {
       const res = await fetch(`/api/auth/delete/${currentUser._id}`, {
         method: 'DELETE',
       })
-      const data=await res.json();
-      if(data.success==false){
-      dispatch(deleteFailure(data.message))
-      return;
+      const data = await res.json()
+      if (data.success == false) {
+        dispatch(deleteFailure(data.message))
+        return
       }
 
       dispatch(deleteSuccess(data))
-      navigate("/login")
+      navigate('/login')
     } catch (error) {
-    dispatch(deleteFailure(error))
+      dispatch(deleteFailure(error))
     }
   }
 
+  const handleSignout = async () => {
+    try {
+      dispatch(signoutStart())
+      const res = await fetch('/api/auth/signout')
+      const data = await res.json()
+      if (data.success == false) {
+        dispatch(signoutFailure(data.message))
+        return
+      }
+      dispatch(signoutSuccess(data))
+      navigate('/login')
+    } catch (error) {
+      dispatch(signoutFailure(error.message))
+    }
+  }
   return (
     <section className="p-4 w-screen h-screen bg-zinc-800 flex flex-col justify-center items-center">
       <h1 className="text-4xl font-bold text-center my-6 text-white ">
@@ -172,7 +192,9 @@ const Profile = () => {
           <button onClick={handleDelete} className="text-red-400 capitalize">
             delete Account
           </button>
-          <button className="text-red-400 capitalize">Sign out</button>
+          <button onClick={handleSignout} className="text-red-400 capitalize">
+            Sign out
+          </button>
         </div>
       </form>
     </section>
