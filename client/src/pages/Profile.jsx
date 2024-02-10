@@ -6,6 +6,7 @@ import {
   ref,
   uploadBytesResumable,
 } from 'firebase/storage'
+
 import { app } from '../firebase'
 import {
   deleteFailure,
@@ -18,7 +19,7 @@ import {
   updateStart,
   updateSuccess,
 } from '../redux/user/userSlice'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 const Profile = () => {
   const { currentUser, loading, error, handleSignOut } = useSelector(
     (state) => state.user
@@ -188,6 +189,7 @@ const Profile = () => {
           {/* Updated */}
           {loading ? 'loading....' : 'Update'}
         </button>
+        <Link className="bg-indigo-700 text-white text-center p-2 rounded-lg uppercase hover:opacity-95 disabled:opacity-80" to='/create-list' >create list</Link>
         <div className="mt-2 flex items-center justify-between">
           <button onClick={handleDelete} className="text-red-400 capitalize">
             delete Account

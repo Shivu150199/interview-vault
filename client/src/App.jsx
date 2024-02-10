@@ -9,6 +9,7 @@ import Navbar from './components/Navbar'
 import LandingPage from './pages/LandingPage'
 import Profile from './pages/Profile'
 import PrivateRoute from './components/PrivateRoute'
+import CreateList from './pages/CreateList'
 const App = () => {
   return (
     <BrowserRouter>
@@ -25,6 +26,7 @@ const App = () => {
         <Route element={<PrivateRoute />}>
 
         <Route path="/profile" element={<Profile />} />
+        <Route path="/create-list" element={<CreateList/>} />
         </Route>
       </Routes>
     </BrowserRouter>
