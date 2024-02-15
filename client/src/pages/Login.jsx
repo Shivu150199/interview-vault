@@ -44,7 +44,8 @@ const {loading,error}=useSelector((state)=>state.user)
 
       navigate('/home')
     } catch (error) {
-      dispatch(signInFailure(error))
+      dispatch(signInFailure('hi my name is shivam'))
+      console.log(error)
       // setLoading(false)
       // setError(error.message)
     }
