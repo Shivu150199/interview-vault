@@ -19,6 +19,7 @@ import {
   updateStart,
   updateSuccess,
 } from '../redux/user/userSlice'
+
 import { Link, useNavigate } from 'react-router-dom'
 const Profile = () => {
   const { currentUser, loading, error, handleSignOut } = useSelector(
@@ -29,8 +30,11 @@ const Profile = () => {
   const [filePerc, setFilePerc] = useState(0)
   const [fileUploadError, setFileUploadError] = useState(false)
   const [formData, setFormData] = useState({})
+  const [showListingError, setShowListingError] = useState(false)
+  const [showList, setShowList] = useState([])
   const dispatch = useDispatch()
   const navigate = useNavigate()
+  console.log(showList)
   // console.log(file)
   // console.log(filePerc)
   // console.log(formData)
@@ -45,7 +49,7 @@ const Profile = () => {
       const res = await fetch(`/api/auth/update/${currentUser._id}`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-type': 'application/json',
         },
         body: JSON.stringify(formData),
       })
@@ -125,8 +129,35 @@ const Profile = () => {
       dispatch(signoutFailure(error.message))
     }
   }
+  const handleShowListing = async (e) => {
+    e.stopPropagation()
+    try {
+      setShowListingError(false)
+      const res = await fetch(`/api/listing/listing/${currentUser._id}`)
+      const data = await res.json()
+      if (data.success == false) {
+        setShowListingError(true)
+        return
+      }
+      setShowList(data)
+      setShowListingError(false)
+    } catch (error) {
+      setShowListingError(true)
+      console.log(error)
+    }
+  }
+
+const handleListEdit=()=>{
+
+}
+const handleListDelete=()=>{
+
+}
+
+
+
   return (
-    <section className="p-4 w-screen h-screen bg-zinc-800 flex flex-col justify-center items-center">
+    <section className="p-4 w-screen  bg-zinc-800 flex flex-col justify-center items-center">
       <h1 className="text-4xl font-bold text-center my-6 text-white ">
         Profile
       </h1>
@@ -189,7 +220,12 @@ const Profile = () => {
           {/* Updated */}
           {loading ? 'loading....' : 'Update'}
         </button>
-        <Link className="bg-indigo-700 text-white text-center p-2 rounded-lg uppercase hover:opacity-95 disabled:opacity-80" to='/create-list' >create list</Link>
+        <Link
+          className="bg-indigo-700 text-white text-center p-2 rounded-lg uppercase hover:opacity-95 disabled:opacity-80"
+          to="/create-list"
+        >
+          create list
+        </Link>
         <div className="mt-2 flex items-center justify-between">
           <button onClick={handleDelete} className="text-red-400 capitalize">
             delete Account
@@ -199,6 +235,34 @@ const Profile = () => {
           </button>
         </div>
       </form>
+      <button onClick={handleShowListing} className="text-green-700">
+        Show listings
+      </button>
+      <p className="text-red-700 mt-5">
+        {showListingError ? 'there is error ' : ' '}
+      </p>
+      {showList &&
+        showList.length > 0 &&
+        showList.map((item) => {
+          const { imageUrls, name, _id } = item;
+          return (
+            <div
+              key={_id}
+              className="text-white flex items-center justify-between gap-6 p-2 mb-2 w-96"
+            >
+              <img src={imageUrls[0]} alt="hello" className="w-10 h-10 object-cover" />
+              <Link to={`/listing/${_id}`}>
+                <h3 className="capitalize font-bold ">{name}</h3>
+              </Link>
+              <div className="flex gap-2 items-center">
+                <button onClick={handleListDelete} className="btn bg-indigo-700 border-none capitalize text-white">
+                  delete
+                </button>
+                <button onClick={handleListEdit} class="btn bg-indigo-700 border-none text-white">edit</button>
+              </div>
+            </div>
+          )
+        })}
     </section>
   )
 }

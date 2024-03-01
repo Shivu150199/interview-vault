@@ -6,25 +6,30 @@ import {
 } from 'firebase/storage'
 import React, { useState } from 'react'
 import { app } from '../firebase'
-import {useSelector} from 'react-redux';
+import { useSelector } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
+
 // import { set } from 'mongoose'
 
 const CreateList = () => {
-  const {currentUser}=useSelector(state=>state.user)
+  const { currentUser } = useSelector((state) => state.user)
+  // console.log(currentUser)
   const [files, setFiles] = useState([])
+  const navigate=useNavigate()
   const [formData, setFormData] = useState({
     imageUrls: [],
     name: '',
     description: '',
     address: '',
     type: 'rent',
-    bedrooms: 1,
-    bathrooms: 1,
-    regularPrice: 50,
-    discountPrice: 50,
+    bedrooms: '1',
+    bathrooms: '1',
+    regularPrice: '50',
+    discountPrice: '50',
     offer: false,
     parking: false,
     furnished: false,
+    // userRef:'sldfgkle4l34lfdlg'
   })
   const [imageUploadError, setImageUploadError] = useState(false)
   const [uploading, setUploading] = useState(false)
@@ -92,20 +97,20 @@ const CreateList = () => {
 
   // console.log(files)
   const handleChange = (e) => {
-    if (e.target.name == 'sale' || e.target.name == 'rent') {
+    if (e.target.id == 'sale' || e.target.id == 'rent') {
       setFormData({
         ...formData,
-        type: e.target.name,
+        type: e.target.id,
       })
     }
     if (
-      e.target.name == 'parking' ||
-      e.target.name == 'furnished' ||
-      e.target.name == 'offer'
+      e.target.id == 'parking' ||
+      e.target.id == 'furnished' ||
+      e.target.id == 'offer'
     ) {
       setFormData({
         ...formData,
-        [e.target.name]: e.target.checked,
+        [e.target.id]: e.target.checked,
       })
     }
     if (
@@ -115,7 +120,7 @@ const CreateList = () => {
     ) {
       setFormData({
         ...formData,
-        [e.target.name]: e.target.value,
+        [e.target.id]: e.target.value,
       })
     }
   }
@@ -128,7 +133,7 @@ const CreateList = () => {
       const res = await fetch('/api/listing/create', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-type': 'application/json',
         },
         body: JSON.stringify({
           ...formData,
@@ -139,12 +144,15 @@ const CreateList = () => {
       if (data.success == false) {
         setError(error.message)
         setLoading(false)
+        return
       }
+      console.log(data)
+      navigate(`/listing/${currentUser._id}`)
       setLoading(false)
     } catch (error) {
       setError(error.message)
       setLoading(false)
-    } 
+    }
   }
   return (
     <main className="p-4 bg-zinc-800 ">
@@ -156,6 +164,7 @@ const CreateList = () => {
         <div className="flex flex-col gap-4 my-4 md:p-10">
           <input
             name="name"
+            id="name"
             type="text"
             required
             max={269}
@@ -170,6 +179,7 @@ const CreateList = () => {
             value={formData.description}
             required
             name="description"
+            id="description"
             type="text"
             placeholder="description"
             className="p-2 rounded border-none outline-none  resize-none capitalize"
@@ -180,6 +190,7 @@ const CreateList = () => {
             value={formData.address}
             required
             name="address"
+            id="address"
             type="text"
             placeholder="address"
             className="p-2 rounded border-none outline-none  capitalize"
@@ -189,7 +200,7 @@ const CreateList = () => {
               <input
                 onChange={handleChange}
                 type="checkbox"
-              
+                id="sale"
                 name="sale"
                 checked={formData.type == 'sale'}
               />
@@ -199,7 +210,6 @@ const CreateList = () => {
               <input
                 onChange={handleChange}
                 type="checkbox"
-              
                 name="rent"
                 id="rent"
                 checked={formData.type == 'rent'}
@@ -210,8 +220,8 @@ const CreateList = () => {
               <input
                 onChange={handleChange}
                 type="checkbox"
-                
                 name="parking"
+                id="parking"
               />
               <span className="text-white">parking spot </span>
             </div>
@@ -219,8 +229,8 @@ const CreateList = () => {
               <input
                 onChange={handleChange}
                 type="checkbox"
-              
                 name="furnished"
+                id="furnished"
               />
               <span className="text-white" name="furnished">
                 furnished
@@ -230,8 +240,8 @@ const CreateList = () => {
               <input
                 onChange={handleChange}
                 type="checkbox"
-              
                 name="offer"
+                id="offer"
               />
               <span className="text-white">offer</span>
             </div>
@@ -242,6 +252,7 @@ const CreateList = () => {
                 onChange={handleChange}
                 type="number"
                 name="bedrooms"
+                id="bedrooms"
                 className="w-14 h-10 rounded"
                 min="1"
                 required
@@ -257,6 +268,7 @@ const CreateList = () => {
                 min="1"
                 required
                 name="bathrooms"
+                id="bathrooms"
                 value={formData.bathrooms}
               />
               <span className="text-white capitalize">baths</span>
@@ -269,7 +281,7 @@ const CreateList = () => {
               type="number"
               className="w-20 h-12 rounded"
               required
-              id="regular-price"
+              id="regularPrice"
               min={50}
               max={100000}
               name="regularPrice"
@@ -287,9 +299,9 @@ const CreateList = () => {
               type="number"
               className="w-20 h-12 rounded"
               required
-              id="discount-price"
+              id="discountPrice"
               min={50}
-              max={1000000000000000000000000000}
+              max={1000000000}
               name="discountPrice"
             />
             <div>
@@ -351,10 +363,10 @@ const CreateList = () => {
               )
             })}
 
-          <button className="btn btn-primary bg-indigo-800 mt-4 w-100 ">
-            {loading?'creating ....':'create list'}
+          <button type='submit' className="btn btn-primary bg-indigo-800 mt-4 w-100 ">
+            {loading ? 'creating ....' : 'create list'}
           </button>
-          {error&&<p className='text-red-700'>{error}</p>}
+          {error && <p className="text-red-700">{error}</p>}
         </div>
       </form>
     </main>
